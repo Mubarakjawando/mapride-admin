@@ -36,7 +36,10 @@ export default function AdminDashboard() {
 
   const fetchDrivers = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/drivers`);
+      const idToken = await auth.currentUser?.getIdToken();
+      const response = await fetch(`${API_BASE_URL}/api/auth/drivers`, {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
       const data = await response.json();
       setDrivers(data);
     } catch (err) {
@@ -85,9 +88,13 @@ export default function AdminDashboard() {
     e.preventDefault();
     setShuttleMessage(null);
     try {
+      const idToken = await auth.currentUser?.getIdToken();
       const response = await fetch(`${API_BASE_URL}/api/shuttles`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify({ plateNumber, capacity: Number(capacity) }),
       });
       const data = await response.json();
@@ -111,9 +118,13 @@ export default function AdminDashboard() {
     e.preventDefault();
     setDriverMessage(null);
     try {
+      const idToken = await auth.currentUser?.getIdToken();
       const response = await fetch(`${API_BASE_URL}/api/auth/staff`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify({
           fullName: driverName,
           email: driverEmail,
