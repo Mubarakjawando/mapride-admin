@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { API_BASE_URL } from '../constants/api';
 
@@ -37,11 +37,12 @@ export default function AdminDashboard() {
   const fetchDrivers = async () => {
     try {
       const idToken = await auth.currentUser?.getIdToken();
+      if (!idToken) return;
       const response = await fetch(`${API_BASE_URL}/api/auth/drivers`, {
         headers: { Authorization: `Bearer ${idToken}` },
       });
       const data = await response.json();
-      setDrivers(data);
+      setDrivers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load drivers:', err);
     }
@@ -60,10 +61,16 @@ export default function AdminDashboard() {
   };
 
   useEffect(() => {
-    fetchShuttles();
-    fetchDrivers();
-    fetchReports();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) return;
+      fetchShuttles();
+      fetchDrivers();
+      fetchReports();
+    });
+    return () => unsubscribe();
+  }, []);
 
+  useEffect(() => {
     const interval = setInterval(() => {
       fetchShuttles();
       fetchDrivers();
