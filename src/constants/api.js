@@ -1,2 +1,2 @@
-// Live backend hosted on Render — works from any network.
-export const API_BASE_URL = 'https://mapride-backend-1.onrender.com';
+// Live backend hosted on Railway (Render account was suspended).
+export const API_BASE_URL = 'https://mapride-backend-production-36d7.up.railway.app';
